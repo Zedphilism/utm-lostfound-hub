@@ -1,15 +1,24 @@
 <?php return array(
     'root' => array(
-        'name' => 'zedphilism/utm-lost-and-found',
+        'name' => '__root__',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'db2dd98d8204ea5b490d9eeddd87a885fe518571',
+        'reference' => '7666dacf3cfc25d3fc7d1512dd1784c9f5d1a816',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        '__root__' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '7666dacf3cfc25d3fc7d1512dd1784c9f5d1a816',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'graham-campbell/result-type' => array(
             'pretty_version' => 'v1.1.3',
             'version' => '1.1.3.0',
@@ -61,15 +70,6 @@
             'reference' => '24ac4c74f91ee2c193fa1aaa5c249cb0822809af',
             'type' => 'library',
             'install_path' => __DIR__ . '/../vlucas/phpdotenv',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'zedphilism/utm-lost-and-found' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'db2dd98d8204ea5b490d9eeddd87a885fe518571',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

@@ -38,7 +38,7 @@
           if (strpos($_SERVER['SCRIPT_NAME'], '/public/') !== false): 
         ?>
           <a
-            href="/utm-lost-and-found/admin/add.php"
+            href="/utm-lost-and-found/public/add.php"
             class="inline-flex items-center whitespace-nowrap bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm md:text-base"
           >
             + Report an Item
