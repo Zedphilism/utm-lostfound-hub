@@ -1,31 +1,32 @@
 <?php
-// File: config/config.php (env-fallback version)
+// File: config/config.php
 
-// 1) Locate .env
-$envFile = __DIR__ . '/../.env';
-if (!is_file($envFile)) {
-    die('.env file not found at ' . $envFile);
+// 1) load Composer autoload
+require __DIR__ . '/../vendor/autoload.php';
+
+// 2) tell phpdotenv where to find .env
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+// safeLoad() so it won't fatal if .env is missing in production
+$dotenv->safeLoad();
+
+// 3) grab your variables
+$dbHost = $_ENV['DB_HOST']   ?? getenv('DB_HOST');
+$dbPort = $_ENV['DB_PORT']   ?? getenv('DB_PORT');
+$dbName = $_ENV['DB_NAME']   ?? getenv('DB_NAME');
+$dbUser = $_ENV['DB_USER']   ?? getenv('DB_USER');
+$dbPass = $_ENV['DB_PASS']   ?? getenv('DB_PASS');
+
+// === DEBUGGING (uncomment while you’re fixing!) ===
+/*
+echo '<pre>';
+var_dump(compact('dbHost','dbPort','dbName','dbUser','dbPass'));
+exit;
+*/
+
+// 4) connect
+$mysqli = new mysqli($dbHost, $dbUser, $dbPass, $dbName, (int)$dbPort);
+if ($mysqli->connect_error) {
+    die('Database Connection Failed: ' . $mysqli->connect_error);
 }
 
-// 2) Parse .env into an array
-$env = parse_ini_file($envFile, false, INI_SCANNER_TYPED);
-if ($env === false) {
-    die('Failed to parse .env');
-}
-
-// 3) Read DB credentials
-$dbHost = $env['DB_HOST'] ?? '127.0.0.1';
-$dbPort = isset($env['DB_PORT']) ? (int)$env['DB_PORT'] : 3306;
-$dbName = $env['DB_NAME'] ?? '';
-$dbUser = $env['DB_USER'] ?? '';
-$dbPass = $env['DB_PASS'] ?? '';
-
-// 4) Connect to MySQL
-$mysqli = new mysqli($dbHost, $dbUser, $dbPass, $dbName, $dbPort);
-
-// 5) Handle connection errors
-if ($mysqli->connect_errno) {
-    die('DB connect error (' 
-      . $mysqli->connect_errno . '): ' 
-      . $mysqli->connect_error);
-}
+// you now have $mysqli for the rest of your app

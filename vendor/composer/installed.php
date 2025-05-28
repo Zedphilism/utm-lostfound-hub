@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'zedphilism/utm-lost-and-found',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
+        'reference' => 'db2dd98d8204ea5b490d9eeddd87a885fe518571',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -65,9 +65,9 @@
             'dev_requirement' => false,
         ),
         'zedphilism/utm-lost-and-found' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => 'db2dd98d8204ea5b490d9eeddd87a885fe518571',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
