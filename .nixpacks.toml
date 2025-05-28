@@ -1,0 +1,6 @@
+[[plugins]]
+type = "php"
+
+[plugins.config]
+serverType   = "builtin"
+documentRoot = "public"
