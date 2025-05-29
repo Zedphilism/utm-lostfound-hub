@@ -1,6 +1,6 @@
 <?php
 // File: admin/index.php
-require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../../config/config.php';
 
 // Session & auth guard
 if (session_status() === PHP_SESSION_NONE) {
