@@ -1,5 +1,8 @@
 <?php
 require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../config/cloudinary.php';
+use Cloudinary\Api\Upload\UploadApi;
+
 session_start();
 
 $success = false;
@@ -14,21 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image_path  = '';
 
     // Handle file upload
-    if (!empty($_FILES['image']['name'])) {
-        $filename = basename($_FILES['image']['name']);
-        $target_dir = __DIR__ . '/uploads/';
-        $target_file = $target_dir . $filename;
-
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-    $image_path = $filename;
-} else {
-    echo "<pre>";
-    print_r(error_get_last());
-    echo "</pre>";
-    die('Image upload failed.');
+    $image_path = '';
+if (!empty($_FILES['image']['tmp_name'])) {
+    try {
+        $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
+        $image_path = $result['secure_url'];
+    } catch (Exception $e) {
+        $error = 'Cloudinary upload failed: ' . $e->getMessage();
+    }
 }
 
-    }
 
     if (!$error) {
         $stmt = $mysqli->prepare(
