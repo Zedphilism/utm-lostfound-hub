@@ -5,7 +5,7 @@ require __DIR__ . '/../../config/config.php';
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /admin/list.php');
+    header('Location: /admin/login.php');
     exit;
 }
 
@@ -17,5 +17,5 @@ if ($id) {
     $stmt->execute();
 }
 
-header('Location: /public/admin/index.php');
+header('Location: /admin/list.php');
 exit;
