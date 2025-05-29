@@ -1,11 +1,9 @@
 <?php
-// File: admin/edit.php
 require __DIR__ . '/../../config/config.php';
-
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /public/admin/login.php');
+    header('Location: /admin/login.php');
     exit;
 }
 
@@ -27,30 +25,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reporter = $_POST['reporter'] ?? '';
     $status = $_POST['status'] ?? '';
 
+    $image_path = $item['image_path'];
+
+    // If new image uploaded, replace
+    if (!empty($_FILES['image']['name'])) {
+        $upload_dir = __DIR__ . '/../../public/uploads/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        $file_name = basename($_FILES['image']['name']);
+        $target_file = $upload_dir . $file_name;
+
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+            $image_path = $file_name;
+        }
+    }
+
     $stmt = $mysqli->prepare("
         UPDATE reports
-        SET item_name=?, type=?, location=?, description=?, reporter=?, status=?
+        SET item_name=?, type=?, location=?, description=?, reporter=?, status=?, image_path=?
         WHERE id=?
     ");
-    $stmt->bind_param('ssssssi', $item_name, $type, $location, $description, $reporter, $status, $id);
+    $stmt->bind_param('sssssssi', $item_name, $type, $location, $description, $reporter, $status, $image_path, $id);
     $stmt->execute();
 
-    header('Location: /public/admin/index.php');
+    header('Location: /admin/list.php');
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Edit Item</title>
-  <link rel="stylesheet" href="/public/assets/css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
   <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
     <h1 class="text-2xl font-bold mb-4">Edit Item</h1>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       <div class="mb-4">
         <label class="block mb-1">Item Name</label>
         <input type="text" name="item_name" value="<?= htmlspecialchars($item['item_name']) ?>" class="w-full border p-2 rounded" required>
@@ -81,6 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <option value="in_review" <?= $item['status']=='in_review'?'selected':'' ?>>In Review</option>
           <option value="resolved" <?= $item['status']=='resolved'?'selected':'' ?>>Resolved</option>
         </select>
+      </div>
+      <div class="mb-4">
+        <label class="block mb-1">Replace Image (optional)</label>
+        <input type="file" name="image" class="w-full">
       </div>
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
     </form>

@@ -19,13 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle file upload
     if (!empty($_FILES['image']['name'])) {
-        $target_dir = 'uploads/';
-        if (!is_dir(__DIR__ . '/' . $target_dir)) {
-            mkdir(__DIR__ . '/' . $target_dir, 0777, true);
+        $upload_dir = __DIR__ . '/../../public/uploads/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
         }
-        $target_file = $target_dir . basename($_FILES['image']['name']);
-        if (move_uploaded_file($_FILES['image']['tmp_name'], __DIR__ . '/' . $target_file)) {
-            $image_path = $target_file;
+
+        $file_name = basename($_FILES['image']['name']);
+        $target_file = $upload_dir . $file_name;
+
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+            $image_path = $file_name; // only store filename in DB
         }
     }
 
@@ -50,12 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <!-- Nav -->
   <div class="flex justify-between items-center px-6 pt-4">
-    <a href="/admin/index.php" class="text-sm text-blue-600 hover:underline">
-      ← Back to Dashboard
-    </a>
-    <a href="/index.php" class="text-sm text-blue-600 hover:underline">
-      Public View →
-    </a>
+    <a href="/admin/index.php" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+    <a href="/index.php" class="text-sm text-blue-600 hover:underline">Public View →</a>
   </div>
 
   <div class="bg-blue-600 text-white p-4 mt-4">
