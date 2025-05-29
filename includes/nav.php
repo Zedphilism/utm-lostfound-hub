@@ -35,7 +35,8 @@
       <div class="flex items-center space-x-4">
         <?php
           // Show “Report an Item” only on public pages
-          if (strpos($_SERVER['SCRIPT_NAME'], '/public/') !== false): 
+          if (basename($_SERVER['SCRIPT_NAME']) === 'index.php'):
+ 
         ?>
           <a
             href="/add.php"
