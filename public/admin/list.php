@@ -1,6 +1,6 @@
 <?php
 // File: admin/list.php
-require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../../config/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
