@@ -24,22 +24,23 @@ $publicReports = $stmtP->get_result();
 <head>
   <meta charset="UTF-8" />
   <title>All Reports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-<div class="flex justify-between items-center px-6 pt-4">
-  <a href="/admin/index.php" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
-  <a href="/index.php" class="text-sm text-blue-600 hover:underline">Public View →</a>
+<div class="flex flex-wrap justify-between items-center px-4 pt-4 text-sm">
+  <a href="/admin/index.php" class="text-blue-600 hover:underline">← Back to Dashboard</a>
+  <a href="/index.php" class="text-blue-600 hover:underline">Public View →</a>
 </div>
 
 <!-- Admin Table -->
 <div class="bg-blue-600 text-white p-4 mt-4">
   <h1 class="text-xl font-semibold">Admin Reports</h1>
 </div>
-<div class="overflow-x-auto px-6 mt-4">
-  <table class="min-w-full bg-white shadow border rounded">
-    <thead class="bg-gray-200 text-left text-sm text-gray-700">
+<div class="overflow-x-auto px-4 mt-4">
+  <table class="min-w-full bg-white shadow border rounded text-sm">
+    <thead class="bg-gray-200 text-left text-gray-700">
       <tr>
         <th class="p-2">ID</th><th>Item</th><th>Type</th><th>Location</th>
         <th>Date</th><th>Status</th><th>Reporter</th><th>Image</th><th>Actions</th>
@@ -47,7 +48,7 @@ $publicReports = $stmtP->get_result();
     </thead>
     <tbody>
     <?php while ($row = $adminReports->fetch_assoc()): ?>
-      <tr class="border-t text-sm">
+      <tr class="border-t">
         <td class="p-2"><?= $row['id'] ?></td>
         <td class="p-2"><?= htmlspecialchars($row['item_name']) ?></td>
         <td class="p-2"><?= ucfirst($row['type']) ?></td>
@@ -55,7 +56,7 @@ $publicReports = $stmtP->get_result();
         <td class="p-2"><?= $row['date_reported'] ?></td>
         <td class="p-2">
           <select
-            class="border rounded px-2 py-1 text-sm status-dropdown"
+            class="border rounded px-2 py-1 status-dropdown"
             data-id="<?= $row['id'] ?>"
           >
             <option value="pending" <?= $row['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
@@ -71,9 +72,9 @@ $publicReports = $stmtP->get_result();
             <span class="text-gray-400 italic">No image</span>
           <?php endif; ?>
         </td>
-        <td class="p-2 flex space-x-2">
-          <a href="edit.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:underline text-sm">Edit</a>
-          <a href="delete.php?id=<?= $row['id'] ?>" class="text-red-600 hover:underline text-sm" onclick="return confirm('Are you sure?')">Delete</a>
+        <td class="p-2 flex gap-2">
+          <a href="edit.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:underline">Edit</a>
+          <a href="delete.php?id=<?= $row['id'] ?>" class="text-red-600 hover:underline" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
       </tr>
     <?php endwhile; ?>
@@ -85,9 +86,9 @@ $publicReports = $stmtP->get_result();
 <div class="bg-green-600 text-white p-4 mt-10">
   <h1 class="text-xl font-semibold">Public Reports</h1>
 </div>
-<div class="overflow-x-auto px-6 mt-4 mb-10">
-  <table class="min-w-full bg-white shadow border rounded">
-    <thead class="bg-gray-200 text-left text-sm text-gray-700">
+<div class="overflow-x-auto px-4 mt-4 mb-10">
+  <table class="min-w-full bg-white shadow border rounded text-sm">
+    <thead class="bg-gray-200 text-left text-gray-700">
       <tr>
         <th class="p-2">ID</th><th>Item</th><th>Type</th><th>Location</th>
         <th>Date</th><th>Status</th><th>Reporter</th><th>Image</th><th>Actions</th>
@@ -95,7 +96,7 @@ $publicReports = $stmtP->get_result();
     </thead>
     <tbody>
     <?php while ($row = $publicReports->fetch_assoc()): ?>
-      <tr class="border-t text-sm">
+      <tr class="border-t">
         <td class="p-2"><?= $row['id'] ?></td>
         <td class="p-2"><?= htmlspecialchars($row['item_name']) ?></td>
         <td class="p-2"><?= ucfirst($row['type']) ?></td>
@@ -110,9 +111,9 @@ $publicReports = $stmtP->get_result();
             <span class="text-gray-400 italic">No image</span>
           <?php endif; ?>
         </td>
-        <td class="p-2 flex space-x-2">
-          <a href="edit.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:underline text-sm">Edit</a>
-          <a href="delete.php?id=<?= $row['id'] ?>" class="text-red-600 hover:underline text-sm" onclick="return confirm('Are you sure?')">Delete</a>
+        <td class="p-2 flex gap-2">
+          <a href="edit.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:underline">Edit</a>
+          <a href="delete.php?id=<?= $row['id'] ?>" class="text-red-600 hover:underline" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
       </tr>
     <?php endwhile; ?>
@@ -120,8 +121,6 @@ $publicReports = $stmtP->get_result();
   </table>
 </div>
 
-
-<!-- AJAX Script -->
 <script>
   document.querySelectorAll('.status-dropdown').forEach(select => {
     select.addEventListener('change', function () {
