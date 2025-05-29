@@ -103,7 +103,14 @@ $publicReports = $stmtP->get_result();
         <td class="p-2"><?= ucfirst($row['type']) ?></td>
         <td class="p-2"><?= htmlspecialchars($row['location']) ?></td>
         <td class="p-2"><?= $row['date_reported'] ?></td>
-        <td class="p-2"><?= ucfirst($row['status']) ?></td>
+        <td class="p-2">
+        <select class="border rounded px-2 py-1 status-dropdown" data-id="<?= $row['id'] ?>">
+        <option value="pending" <?= $row['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+        <option value="claimed" <?= $row['status'] === 'claimed' ? 'selected' : '' ?>>Claimed</option>
+    <option value="resolved" <?= $row['status'] === 'resolved' ? 'selected' : '' ?>>Resolved</option>
+  </select>
+</td>
+
         <td class="p-2"><?= htmlspecialchars($row['reporter']) ?></td>
         <td class="p-2">
           <?php if (!empty($row['image_path'])): ?>
