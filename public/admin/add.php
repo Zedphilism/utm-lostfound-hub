@@ -25,10 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $target_file = $target_dir . $filename;
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-            $image_path = $filename;
-        } else {
-            $error = 'Image upload failed.';
-        }
+    $image_path = $filename;
+} else {
+    echo "<pre>";
+    print_r(error_get_last());
+    echo "</pre>";
+    die('Image upload failed.');
+}
+
     }
 
     if (!$error) {
