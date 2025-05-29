@@ -1,6 +1,6 @@
 <?php
 // File: public/add.php
-require __DIR__ . '/../../config/config.php';
+require __DIR__ . '/../config/config.php';
 
 // Initialize form values & errors
 $errors      = [];
