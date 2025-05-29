@@ -90,7 +90,7 @@ $publicReports = $stmtP->get_result();
     <thead class="bg-gray-200 text-left text-sm text-gray-700">
       <tr>
         <th class="p-2">ID</th><th>Item</th><th>Type</th><th>Location</th>
-        <th>Date</th><th>Status</th><th>Reporter</th><th>Image</th>
+        <th>Date</th><th>Status</th><th>Reporter</th><th>Image</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -110,11 +110,16 @@ $publicReports = $stmtP->get_result();
             <span class="text-gray-400 italic">No image</span>
           <?php endif; ?>
         </td>
+        <td class="p-2 flex space-x-2">
+          <a href="edit.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:underline text-sm">Edit</a>
+          <a href="delete.php?id=<?= $row['id'] ?>" class="text-red-600 hover:underline text-sm" onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
       </tr>
     <?php endwhile; ?>
     </tbody>
   </table>
 </div>
+
 
 <!-- AJAX Script -->
 <script>
