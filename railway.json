@@ -1,0 +1,10 @@
+{
+  "build": {
+    "env": {
+      "APP_ENV": "production"
+    }
+  },
+  "start": {
+    "cmd": "php -S 0.0.0.0:3000 -t ."
+  }
+}
