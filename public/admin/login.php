@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <title>Admin Login</title>
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
   <div class="max-w-md mx-auto mt-20 bg-white p-6 rounded shadow">
