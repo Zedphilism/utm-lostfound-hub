@@ -1,8 +1,6 @@
 <?php
-// File: public/add.php
 require __DIR__ . '/../config/config.php';
 
-// Initialize form values & errors
 $errors      = [];
 $item_name   = '';
 $type        = '';
@@ -12,20 +10,17 @@ $reporter    = '';
 $image_path  = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 1) Sanitize
     $item_name   = trim($_POST['item_name']   ?? '');
     $type        = $_POST['type']             ?? '';
     $location    = trim($_POST['location']    ?? '');
     $description = trim($_POST['description'] ?? '');
     $reporter    = trim($_POST['reporter']    ?? '');
 
-    // 2) Validate
     if ($item_name === '')   $errors[] = 'Item name is required.';
     if (!in_array($type, ['lost','found'], true)) $errors[] = 'Please select Lost or Found.';
     if ($location === '')    $errors[] = 'Location is required.';
     if ($reporter === '')    $errors[] = 'Your name is required.';
 
-    // 3) Handle optional image upload
     if (!empty($_FILES['image']['name'])) {
         $allowed = ['jpg','jpeg','png','gif'];
         $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
@@ -46,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 4) If OK, insert & redirect
     if (empty($errors)) {
         $stmt = $mysqli->prepare("
             INSERT INTO reports
@@ -65,13 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// 5) Render form in your public layout
 $pageTitle = 'Report an Item';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/nav.php';
 ?>
 
-<div class="container mx-auto px-4 py-6">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
   <h1 class="text-2xl font-bold mb-4">Report an Item</h1>
 
   <?php if ($errors): ?>
@@ -134,14 +127,16 @@ include __DIR__ . '/../includes/nav.php';
       <input type="file" name="image" class="border p-2 rounded w-full">
     </div>
 
-    <div class="pt-4">
+    <div class="pt-4 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
       <button
         type="submit"
-        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full sm:w-auto"
       >
         Submit Report
       </button>
-      <a href="index.php" class="ml-4 text-gray-700 hover:underline">Cancel</a>
+      <a href="index.php" class="text-center text-gray-700 hover:underline w-full sm:w-auto">
+        Cancel
+      </a>
     </div>
   </form>
 </div>

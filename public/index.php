@@ -27,28 +27,30 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<div class="container mx-auto px-4">
-  <h1 class="text-2xl font-bold mb-4">Lost & Found Items</h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <h1 class="text-2xl font-bold mb-4 mt-6">Lost & Found Items</h1>
 
-  <form method="get" class="mb-6 flex space-x-2">
+  <!-- Responsive filter form -->
+  <form method="get" class="mb-6 grid grid-cols-1 md:flex md:items-center md:space-x-2 space-y-2 md:space-y-0">
     <input
       name="search"
       type="text"
       value="<?= htmlspecialchars($search) ?>"
       placeholder="Search items..."
-      class="border p-2 rounded flex-grow"
+      class="border p-2 rounded w-full md:flex-grow"
     >
-    <select name="status" class="border p-2 rounded">
+    <select name="status" class="border p-2 rounded w-full md:w-auto">
       <option value="">All Status</option>
       <option value="pending" <?= $statusFilter=='pending'?'selected':'' ?>>Pending</option>
       <option value="in_review" <?= $statusFilter=='in_review'?'selected':'' ?>>In Review</option>
       <option value="resolved" <?= $statusFilter=='resolved'?'selected':'' ?>>Resolved</option>
     </select>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full md:w-auto">
       Filter
     </button>
   </form>
 
+  <!-- Responsive item grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php while ($row = $result->fetch_assoc()): ?>
     <article class="bg-white shadow rounded p-4">
