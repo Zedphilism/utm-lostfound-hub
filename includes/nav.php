@@ -3,7 +3,7 @@
   <!-- Background image -->
   <div
     class="absolute inset-0 bg-cover bg-center"
-    style="background-image: url('/utm-lost-and-found/assets/images/banner.webp');"
+    style="background-image: url('/assets/images/banner.webp');"
   ></div>
   <!-- Blue tint overlay -->
   <div class="absolute inset-0 bg-blue-800 opacity-50"></div>
@@ -12,9 +12,9 @@
   <nav class="relative z-10">
     <div class="container mx-auto px-4 py-3 flex items-center">
       <!-- Logo (clickable to homepage) -->
-      <a href="/utm-lost-and-found/public/index.php" class="flex-none">
+      <a href="/index.php" class="flex-none">
         <img
-          src="/utm-lost-and-found/assets/images/utm-logo.png"
+          src="/assets/images/utm-logo.png"
           alt="UTM Logo"
           class="h-16 md:h-20 lg:h-24 w-auto"
         >
@@ -38,7 +38,7 @@
           if (strpos($_SERVER['SCRIPT_NAME'], '/public/') !== false): 
         ?>
           <a
-            href="/utm-lost-and-found/public/add.php"
+            href="/add.php"
             class="inline-flex items-center whitespace-nowrap bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm md:text-base"
           >
             + Report an Item
@@ -47,20 +47,20 @@
 
         <?php if (isset($_SESSION['user_id'])): ?>
           <a
-            href="/utm-lost-and-found/admin/index.php"
+            href="/admin/index.php"
             class="text-white hover:text-gray-200 text-sm md:text-base"
           >
             Dashboard
           </a>
           <a
-            href="/utm-lost-and-found/admin/logout.php"
+            href="/admin/logout.php"
             class="text-white hover:text-gray-200 text-sm md:text-base"
           >
             Logout
           </a>
         <?php else: ?>
           <a
-            href="/utm-lost-and-found/admin/login.php"
+            href="/admin/login.php"
             class="text-white hover:text-gray-200 text-sm md:text-base"
           >
             Admin Login

@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // If already logged in, go to dashboard
 if (isset($_SESSION['user_id'])) {
-    header('Location: /public/admin/index.php');
+    header('Location: /admin/index.php');
     exit;
 }
 
@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Please enter both username and password.';
     } else {
-        // Fetch from admin_users table
         $stmt = $mysqli->prepare(
             "SELECT id, password_hash FROM admin_users WHERE username = ? LIMIT 1"
         );
@@ -31,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_result($id, $hash);
         if ($stmt->fetch() && password_verify($password, $hash)) {
             $_SESSION['user_id'] = $id;
-            header('Location: /public/admin/index.php');
+            header('Location: /admin/index.php');
             exit;
         } else {
             $error = 'Invalid username or password.';
@@ -45,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <title>Admin Login</title>
-  <link rel="stylesheet" href="/public/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="bg-gray-100 text-gray-900">
   <div class="max-w-md mx-auto mt-20 bg-white p-6 rounded shadow">

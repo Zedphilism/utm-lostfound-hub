@@ -2,90 +2,48 @@
 // File: public/item.php
 require __DIR__ . '/../config/config.php';
 
-// 1) Validate & get the ID
-$id = $_GET['id'] ?? '';
-if (!ctype_digit($id)) {
-    header('Location: index.php');
+$id = $_GET['id'] ?? null;
+if (!$id) {
+    echo "Invalid request.";
     exit;
 }
 
-// 2) Fetch the report (including image_path)
-$sql = "
-  SELECT
-    item_name,
-    type,
-    location,
-    reporter,
-    DATE_FORMAT(date_reported, '%Y-%m-%d %H:%i') AS date_reported,
-    description,
-    status,
-    image_path
-  FROM reports
-  WHERE id = ?
-  LIMIT 1
-";
-$stmt = $mysqli->prepare($sql);
+$stmt = $mysqli->prepare("SELECT * FROM reports WHERE id = ?");
 $stmt->bind_param('i', $id);
 $stmt->execute();
-$stmt->bind_result(
-  $item_name,
-  $type,
-  $location,
-  $reporter,
-  $date_reported,
-  $description,
-  $status,
-  $image_path
-);
-if (!$stmt->fetch()) {
-  // no such report → back to list
-  header('Location: index.php');
-  exit;
-}
-$stmt->close();
+$result = $stmt->get_result();
+$item = $result->fetch_assoc();
 
-// 3) Render
-include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../includes/nav.php';
+if (!$item) {
+    echo "Item not found.";
+    exit;
+}
 ?>
 
-<div class="container mx-auto px-4 py-6 md:flex md:space-x-8">
-  <!-- Left column: text details -->
-  <div class="md:w-2/3 bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4"><?= htmlspecialchars($item_name) ?></h1>
-    <p><strong>Type:</strong> <?= htmlspecialchars(ucfirst($type)) ?></p>
-    <p><strong>Location:</strong> <?= htmlspecialchars($location) ?></p>
-    <p><strong>Reporter:</strong> <?= htmlspecialchars($reporter) ?></p>
-    <p><strong>Date:</strong> <?= htmlspecialchars($date_reported) ?></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Item Details</title>
+  <link rel="stylesheet" href="/public/assets/css/style.css">
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4"><?= htmlspecialchars($item['item_name']) ?></h1>
+    <p><strong>Type:</strong> <?= $item['type'] ?></p>
+    <p><strong>Location:</strong> <?= htmlspecialchars($item['location']) ?></p>
+    <p><strong>Description:</strong> <?= nl2br(htmlspecialchars($item['description'])) ?></p>
+    <p><strong>Reported By:</strong> <?= htmlspecialchars($item['reporter']) ?></p>
+    <p><strong>Status:</strong> <?= ucfirst(str_replace('_', ' ', $item['status'])) ?></p>
+    <p><strong>Date Reported:</strong> <?= date('Y-m-d H:i', strtotime($item['date_reported'])) ?></p>
 
-    <?php if ($description): ?>
+    <?php if (!empty($item['image_path'])): ?>
       <div class="mt-4">
-        <strong>Description:</strong>
-        <p class="mt-1"><?= nl2br(htmlspecialchars($description)) ?></p>
+        <img src="/public/<?= $item['image_path'] ?>" alt="Item Image" class="w-full max-w-xs rounded shadow">
       </div>
     <?php endif; ?>
 
-    <p class="mt-4"><strong>Status:</strong> <?= htmlspecialchars(ucfirst($status)) ?></p>
-
-    <div class="mt-6">
-      <a href="index.php" class="text-blue-600 hover:underline">← Back to list</a>
-    </div>
+    <a href="/public/index.php" class="inline-block mt-6 text-blue-600 hover:underline">← Back to List</a>
   </div>
-
-  <!-- Right column: uploaded image -->
-  <div class="md:w-1/3 mt-6 md:mt-0">
-    <?php if ($image_path): ?>
-      <img
-        src="../<?= htmlspecialchars($image_path) ?>"
-        alt="Uploaded item"
-        class="w-full rounded shadow"
-      >
-    <?php else: ?>
-      <div class="border border-dashed border-gray-300 h-48 flex items-center justify-center text-gray-500">
-        No image uploaded
-      </div>
-    <?php endif; ?>
-  </div>
-</div>
-
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+</body>
+</html>
