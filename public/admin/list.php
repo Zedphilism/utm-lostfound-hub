@@ -1,86 +1,83 @@
 <?php
-// File: admin/list.php
 require __DIR__ . '/../../config/config.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /public/admin/login.php');
+    header('Location: /admin/login.php');
     exit;
 }
 
-// Fetch all reports, reading the real `image_path` column
+// Fetch reports
 $sql = "
     SELECT
-        id,
-        item_name,
-        type,
-        location,
+        id, item_name, type, location,
         DATE_FORMAT(date_reported, '%Y-%m-%d') AS date_reported,
-        reporter,
-        status,
-        image_path
+        status, reporter, image_path
     FROM reports
     ORDER BY date_reported DESC
 ";
-$stmt   = $mysqli->prepare($sql);
+$stmt = $mysqli->prepare($sql);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>All Reports</title>
-  <link
-    href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
-  <link rel="stylesheet" href="/public/assets/css/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-900">
 
-  <!-- BLUE HEADER -->
-  <div class="bg-primary text-white p-3 mb-4">
-    <div class="container">
-      <h1 class="h4 mb-0">Report List</h1>
-    </div>
+  <!-- Nav buttons -->
+  <div class="flex justify-between items-center px-6 pt-4">
+    <a href="/admin/index.php" class="text-sm text-blue-600 hover:underline">
+      ← Back to Dashboard
+    </a>
+    <a href="/index.php" class="text-sm text-blue-600 hover:underline">
+      Public View →
+    </a>
   </div>
 
-  <div class="container">
-    <table class="table table-bordered">
-      <thead class="thead-light">
-        <tr>
-          <th>ID</th>
-          <th>Item</th>
-          <th>Type</th>
-          <th>Location</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Reporter</th>
-          <th>Image</th>
+  <!-- Header -->
+  <div class="bg-blue-600 text-white p-4 mt-4">
+    <h1 class="text-xl font-semibold">Report List</h1>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto px-6 mt-4">
+    <table class="min-w-full bg-white shadow border rounded">
+      <thead>
+        <tr class="bg-gray-200 text-left text-sm text-gray-700">
+          <th class="p-2">ID</th>
+          <th class="p-2">Item</th>
+          <th class="p-2">Type</th>
+          <th class="p-2">Location</th>
+          <th class="p-2">Date</th>
+          <th class="p-2">Status</th>
+          <th class="p-2">Reporter</th>
+          <th class="p-2">Image</th>
         </tr>
       </thead>
       <tbody>
         <?php while ($row = $result->fetch_assoc()): ?>
-          <tr>
-            <td><?= $row['id'] ?></td>
-            <td><?= htmlspecialchars($row['item_name']) ?></td>
-            <td><?= $row['type'] ?></td>
-            <td><?= htmlspecialchars($row['location']) ?></td>
-            <td><?= $row['date_reported'] ?></td>
-            <td><?= $row['status'] ?></td>
-            <td><?= htmlspecialchars($row['reporter']) ?></td>
-            <td>
-              <?php if ($row['image_path']): ?>
-                <img src="/public/<?= $row['image_path'] ?>" alt="Item Image" width="100">
-              <?php else: ?>
-                N/A
-              <?php endif; ?>
-            </td>
-          </tr>
+        <tr class="border-t text-sm">
+          <td class="p-2"><?= $row['id'] ?></td>
+          <td class="p-2"><?= htmlspecialchars($row['item_name']) ?></td>
+          <td class="p-2"><?= ucfirst($row['type']) ?></td>
+          <td class="p-2"><?= htmlspecialchars($row['location']) ?></td>
+          <td class="p-2"><?= $row['date_reported'] ?></td>
+          <td class="p-2"><?= ucfirst(str_replace('_', ' ', $row['status'])) ?></td>
+          <td class="p-2"><?= htmlspecialchars($row['reporter']) ?></td>
+          <td class="p-2">
+            <?php if (!empty($row['image_path'])): ?>
+              <img src="/<?= $row['image_path'] ?>" class="w-16 h-auto rounded" />
+            <?php else: ?>
+              <span class="text-gray-400 italic">No image</span>
+            <?php endif; ?>
+          </td>
+        </tr>
         <?php endwhile; ?>
       </tbody>
     </table>
