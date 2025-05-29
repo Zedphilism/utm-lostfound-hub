@@ -1,6 +1,6 @@
 <?php
 // File: public/item.php
-require __DIR__ . '/../../config/config.php';
+require __DIR__ . '/../config/config.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
