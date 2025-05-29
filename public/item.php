@@ -9,7 +9,6 @@ if (!$id) {
     exit;
 }
 
-// Get item data
 $stmt = $mysqli->prepare("SELECT * FROM reports WHERE id = ?");
 $stmt->bind_param('i', $id);
 $stmt->execute();
@@ -38,7 +37,7 @@ if (!$item) {
   <p><strong>Description:</strong> <?= nl2br(htmlspecialchars($item['description'])) ?></p>
   <p><strong>Reported By:</strong> <?= htmlspecialchars($item['reporter']) ?></p>
   <p><strong>Status:</strong> <?= htmlspecialchars($item['status']) ?></p>
-  <p><strong>Date Reported:</strong> <?= $item['date_reported'] ?></p>
+  <p><strong>Date Reported:</strong> <?= htmlspecialchars($item['date_reported']) ?></p>
 
   <?php if (!empty($item['image_path'])): ?>
     <img src="/uploads/<?= htmlspecialchars($item['image_path']) ?>" alt="Item Image" class="w-40 h-auto mx-auto mt-4" />
@@ -47,7 +46,7 @@ if (!$item) {
   <?php endif; ?>
 
   <div class="mt-6 text-center">
-    <a href="/admin/list.php" class="text-blue-600 hover:underline">← Back to All Reports</a>
+    <a href="/index.php" class="text-blue-600 hover:underline">← Back to All Reports</a>
   </div>
 </div>
 
