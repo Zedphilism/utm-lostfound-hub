@@ -68,7 +68,17 @@ $publicReports = $stmtP->get_result();
         <td class="p-2"><?= htmlspecialchars($row['reporter']) ?></td>
         <td class="p-2">
           <?php if (!empty($row['image_path'])): ?>
-            <img src="/uploads/<?= htmlspecialchars($row['image_path']) ?>" class="w-16 h-auto rounded" />
+            <?php
+  $imageSrc = $row['image_path'];
+  if (!empty($imageSrc)) {
+    $isUrl = str_starts_with($imageSrc, 'http://') || str_starts_with($imageSrc, 'https://');
+    $fullPath = $isUrl ? $imageSrc : "/uploads/" . htmlspecialchars($imageSrc);
+    echo '<img src="' . $fullPath . '" class="w-16 h-auto rounded" />';
+  } else {
+    echo '<span class="text-gray-400 italic">No image</span>';
+  }
+?>
+
           <?php else: ?>
             <span class="text-gray-400 italic">No image</span>
           <?php endif; ?>
