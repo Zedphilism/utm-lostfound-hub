@@ -40,7 +40,17 @@ if (!$item) {
   <p><strong>Date Reported:</strong> <?= htmlspecialchars($item['date_reported']) ?></p>
 
   <?php if (!empty($item['image_path'])): ?>
-    <img src="/uploads/<?= htmlspecialchars($item['image_path']) ?>" alt="Item Image" class="w-40 h-auto mx-auto mt-4" />
+    <?php
+  $imageSrc = $item['image_path'];
+  if (!empty($imageSrc)) {
+    $isUrl = str_starts_with($imageSrc, 'http://') || str_starts_with($imageSrc, 'https://');
+    $fullPath = $isUrl ? $imageSrc : "/uploads/" . htmlspecialchars($imageSrc);
+    echo '<img src="' . $fullPath . '" alt="Item Image" class="w-40 h-auto mx-auto mt-4" />';
+  } else {
+    echo '<p class="italic text-gray-400 mt-4 text-center">No image available</p>';
+  }
+?>
+
   <?php else: ?>
     <p class="italic text-gray-400 mt-4 text-center">No image available</p>
   <?php endif; ?>
