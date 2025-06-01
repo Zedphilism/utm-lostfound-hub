@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label class="block mb-1">Status</label>
         <select name="status" class="w-full border p-2 rounded" required>
           <option value="pending" <?= $item['status']=='pending'?'selected':'' ?>>Pending</option>
-          <option value="in_review" <?= $item['status']=='in_review'?'selected':'' ?>>In Review</option>
+          <option value="claimed" <?= $item['status']=='claimed'?'selected':'' ?>>Claimed</option>
           <option value="resolved" <?= $item['status']=='resolved'?'selected':'' ?>>Resolved</option>
         </select>
       </div>
