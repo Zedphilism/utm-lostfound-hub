@@ -17,6 +17,8 @@ $pend  = $mysqli->query("SELECT COUNT(*) AS cnt FROM reports WHERE status='pendi
 $inrev = $mysqli->query("SELECT COUNT(*) AS cnt FROM reports WHERE status='in_review'")->fetch_assoc()['cnt'];
 $resvd = $mysqli->query("SELECT COUNT(*) AS cnt FROM reports WHERE status='resolved'")->fetch_assoc()['cnt'];
 
+// ✅ Fetch pending claim count
+$claims = $mysqli->query("SELECT COUNT(*) AS cnt FROM claims WHERE status='pending'")->fetch_assoc()['cnt'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +38,6 @@ $resvd = $mysqli->query("SELECT COUNT(*) AS cnt FROM reports WHERE status='resol
   <div class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3">Dashboard</h1>
-
     </div>
 
     <div class="row mb-4">
@@ -76,7 +77,13 @@ $resvd = $mysqli->query("SELECT COUNT(*) AS cnt FROM reports WHERE status='resol
 
     <div class="mb-4">
       <a href="list.php" class="btn btn-primary mr-2">Manage Reports</a>
-      <a href="add.php"  class="btn btn-success">Add New Report</a>
+      <a href="add.php" class="btn btn-success mr-2">Add New Report</a>
+      <a href="claims.php" class="btn btn-warning">
+        Manage Claims
+        <?php if ($claims > 0): ?>
+          <span class="badge badge-light ml-1"><?= $claims ?> Pending</span>
+        <?php endif; ?>
+      </a>
     </div>
   </div>
 
