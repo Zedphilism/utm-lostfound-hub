@@ -55,6 +55,15 @@ if (!$item) {
     <p class="italic text-gray-400 mt-4 text-center">No image available</p>
   <?php endif; ?>
 
+  <?php if ($item['type'] === 'found' && $item['status'] === 'pending'): ?>
+  <div class="mt-6 text-center">
+    <a href="/claim.php?id=<?= $item['id'] ?>"
+       class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+      Claim This Item
+    </a>
+  </div>
+<?php endif; ?>
+
   <div class="mt-6 text-center">
     <a href="/index.php" class="text-blue-600 hover:underline">← Back to All Reports</a>
   </div>
