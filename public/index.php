@@ -5,15 +5,26 @@ require __DIR__ . '/../config/config.php';
 $pageTitle = 'Lost & Found - Home';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/nav.php';
+?>
 
-// Handle filters
+<!-- ✅ Announcement banner HTML goes here -->
+<div class="bg-yellow-300 py-2 overflow-hidden">
+  <marquee class="text-black text-sm font-medium space-x-10">
+    📢 Items reported will be verified before appearing. Claim quickly if it's yours!
+    🔔 Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.
+  </marquee>
+</div>
+
+<?php
+// ✅ Handle filters
 $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
 
-// Build query
+// ✅ Build query
 $sql = "SELECT id,item_name,type,location,date_reported,status FROM reports WHERE item_name LIKE ?";
 $types = 's';
 $params = ['%' . $search . '%'];
+
 if ($statusFilter) {
     $sql .= " AND status=?";
     $types .= 's';
@@ -41,9 +52,9 @@ $result = $stmt->get_result();
     >
     <select name="status" class="border p-2 rounded w-full md:w-auto">
       <option value="">All Status</option>
-      <option value="pending" <?= $statusFilter=='pending'?'selected':'' ?>>Pending</option>
-      <option value="in_review" <?= $statusFilter=='in_review'?'selected':'' ?>>In Review</option>
-      <option value="resolved" <?= $statusFilter=='resolved'?'selected':'' ?>>Resolved</option>
+      <option value="pending" <?= $statusFilter == 'pending' ? 'selected' : '' ?>>Pending</option>
+      <option value="in_review" <?= $statusFilter == 'in_review' ? 'selected' : '' ?>>In Review</option>
+      <option value="resolved" <?= $statusFilter == 'resolved' ? 'selected' : '' ?>>Resolved</option>
     </select>
     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full md:w-auto">
       Filter

@@ -116,7 +116,7 @@ $resolvedReports = $stmtR->get_result();
         <td class="p-2">
           <select class="border rounded px-2 py-1 status-dropdown" data-id="<?= $row['id'] ?>">
             <option value="pending" <?= $row['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-            <option value="claimed" <?= $row['status'] === 'claimed' ? 'selected' : '' ?>>Claimed</option>
+            <option value="in review" <?= $row['status'] === 'in review' ? 'selected' : '' ?>>In Review</option>
             <option value="resolved" <?= $row['status'] === 'resolved' ? 'selected' : '' ?>>Resolved</option>
           </select>
         </td>
