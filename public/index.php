@@ -7,11 +7,28 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/nav.php';
 ?>
 
-<!-- ✅ Announcement banner -->
-<div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 text-center text-sm font-medium rounded-sm shadow-sm mt-2 mx-4">
-  📢 Items reported will be verified before appearing. 
-  ⚠️ Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.
+<!-- ✅ Animated Announcement Banner -->
+<div class="bg-yellow-100 border border-yellow-300 text-yellow-800 text-sm font-medium rounded shadow-sm mt-2 mx-4 overflow-hidden h-[1.8rem] relative">
+  <div class="absolute animate-slide-down space-y-1 py-1 pl-4">
+    <div>📢 Items reported will be verified before appearing.</div>
+    <div>⚠️ Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.</div>
+    <div>🔍 You can filter reports by status or search by item name.</div>
+    <div>📦 Found items unclaimed after 30 days will be handed over to campus security.</div>
+  </div>
 </div>
+
+<style>
+  @keyframes slide-down {
+    0%   { transform: translateY(0%); }
+    25%  { transform: translateY(-100%); }
+    50%  { transform: translateY(-200%); }
+    75%  { transform: translateY(-300%); }
+    100% { transform: translateY(0%); }
+  }
+  .animate-slide-down {
+    animation: slide-down 16s linear infinite;
+  }
+</style>
 
 <?php
 // ✅ Handle filters
@@ -75,13 +92,11 @@ $result = $stmt->get_result();
         </h2>
         <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
         <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
-        <p class="text-sm">
-          Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?>
-        </p>
+        <p class="text-sm">Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?></p>
         <p class="text-sm">
           Status:
           <span class="font-medium">
-            <?= ucfirst(str_replace('_',' ', $row['status'])) ?>
+            <?= ucfirst(str_replace('_', ' ', $row['status'])) ?>
           </span>
         </p>
         <a
