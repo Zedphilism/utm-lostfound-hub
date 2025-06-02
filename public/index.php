@@ -7,12 +7,11 @@ include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/nav.php';
 ?>
 
-<!-- ✅ Announcement banner HTML goes here -->
+<!-- ✅ Announcement banner -->
 <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 text-center text-sm font-medium rounded-sm shadow-sm mt-2 mx-4">
   📢 Items reported will be verified before appearing. 
   ⚠️ Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.
 </div>
-
 
 <?php
 // ✅ Handle filters
@@ -20,12 +19,12 @@ $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
 
 // ✅ Build query
-$sql = "SELECT id,item_name,type,location,date_reported,status FROM reports WHERE item_name LIKE ?";
+$sql = "SELECT id, item_name, type, location, date_reported, status FROM reports WHERE item_name LIKE ?";
 $types = 's';
 $params = ['%' . $search . '%'];
 
 if ($statusFilter) {
-    $sql .= " AND status=?";
+    $sql .= " AND status = ?";
     $types .= 's';
     $params[] = $statusFilter;
 }
@@ -40,7 +39,7 @@ $result = $stmt->get_result();
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <h1 class="text-2xl font-bold mb-4 mt-6">Lost & Found Items</h1>
 
-  <!-- Responsive filter form -->
+  <!-- Filter form -->
   <form method="get" class="mb-6 grid grid-cols-1 md:flex md:items-center md:space-x-2 space-y-2 md:space-y-0">
     <input
       name="search"
@@ -53,6 +52,7 @@ $result = $stmt->get_result();
       <option value="">All Status</option>
       <option value="pending" <?= $statusFilter == 'pending' ? 'selected' : '' ?>>Pending</option>
       <option value="in_review" <?= $statusFilter == 'in_review' ? 'selected' : '' ?>>In Review</option>
+      <option value="claimed" <?= $statusFilter == 'claimed' ? 'selected' : '' ?>>Claimed</option>
       <option value="resolved" <?= $statusFilter == 'resolved' ? 'selected' : '' ?>>Resolved</option>
     </select>
     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full md:w-auto">
@@ -60,59 +60,37 @@ $result = $stmt->get_result();
     </button>
   </form>
 
-  <!-- Responsive item grid -->
+  <!-- Item cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php while ($row = $result->fetch_assoc()): ?>
-    <article class="relative bg-white shadow rounded p-4">
-  <?php if ($row['status'] === 'claimed'): ?>
-    <div class="absolute top-2 right-2 bg-yellow-300 text-gray-800 text-xs font-semibold px-2 py-1 rounded shadow">
-      CLAIMED
-    </div>
-  <?php endif; ?>
+      <article class="relative bg-white shadow rounded p-4">
+        <?php if ($row['status'] === 'claimed'): ?>
+          <div class="absolute top-2 right-2 bg-yellow-300 text-gray-800 text-xs font-semibold px-2 py-1 rounded shadow">
+            CLAIMED
+          </div>
+        <?php endif; ?>
 
-  <h2 class="text-xl font-semibold">
-    <?= htmlspecialchars($row['item_name']) ?>
-  </h2>
-  <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
-  <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
-  <p class="text-sm">
-    Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?>
-  </p>
-  <p class="text-sm">
-    Status:
-    <span class="font-medium">
-      <?= ucfirst(str_replace('_',' ', $row['status'])) ?>
-    </span>
-  </p>
-  <a
-    href="item.php?id=<?= $row['id'] ?>"
-    class="text-blue-600 mt-2 inline-block"
-  >
-    View Details →
-  </a>
-</article>
-
-      <h2 class="text-xl font-semibold">
-        <?= htmlspecialchars($row['item_name']) ?>F
-      </h2>
-      <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
-      <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
-      <p class="text-sm">
-        Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?>
-      </p>
-      <p class="text-sm">
-        Status:
-        <span class="font-medium">
-          <?= ucfirst(str_replace('_',' ', $row['status'])) ?>
-        </span>
-      </p>
-      <a
-        href="item.php?id=<?= $row['id'] ?>"
-        class="text-blue-600 mt-2 inline-block"
-      >
-        View Details →
-      </a>
-    </article>
+        <h2 class="text-xl font-semibold">
+          <?= htmlspecialchars($row['item_name']) ?>
+        </h2>
+        <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
+        <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
+        <p class="text-sm">
+          Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?>
+        </p>
+        <p class="text-sm">
+          Status:
+          <span class="font-medium">
+            <?= ucfirst(str_replace('_',' ', $row['status'])) ?>
+          </span>
+        </p>
+        <a
+          href="item.php?id=<?= $row['id'] ?>"
+          class="text-blue-600 mt-2 inline-block"
+        >
+          View Details →
+        </a>
+      </article>
     <?php endwhile; ?>
   </div>
 </div>
