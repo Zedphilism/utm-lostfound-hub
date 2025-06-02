@@ -8,12 +8,11 @@ include __DIR__ . '/../includes/nav.php';
 ?>
 
 <!-- ✅ Announcement banner HTML goes here -->
-<div class="bg-yellow-300 py-2 overflow-hidden">
-  <marquee class="text-black text-sm font-medium space-x-10">
-    📢 Items reported will be verified before appearing. Claim quickly if it's yours!
-    🔔 Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.
-  </marquee>
+<div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 text-center text-sm font-medium rounded-sm shadow-sm mt-2 mx-4">
+  📢 Items reported will be verified before appearing. 
+  ⚠️ Claimed items must be collected at Student Affairs Office, Level 2, Block A, UTMKL SPACE.
 </div>
+
 
 <?php
 // ✅ Handle filters
@@ -64,9 +63,37 @@ $result = $stmt->get_result();
   <!-- Responsive item grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <?php while ($row = $result->fetch_assoc()): ?>
-    <article class="bg-white shadow rounded p-4">
+    <article class="relative bg-white shadow rounded p-4">
+  <?php if ($row['status'] === 'claimed'): ?>
+    <div class="absolute top-2 right-2 bg-yellow-300 text-gray-800 text-xs font-semibold px-2 py-1 rounded shadow">
+      CLAIMED
+    </div>
+  <?php endif; ?>
+
+  <h2 class="text-xl font-semibold">
+    <?= htmlspecialchars($row['item_name']) ?>
+  </h2>
+  <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
+  <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
+  <p class="text-sm">
+    Reported: <?= date('Y-m-d H:i', strtotime($row['date_reported'])) ?>
+  </p>
+  <p class="text-sm">
+    Status:
+    <span class="font-medium">
+      <?= ucfirst(str_replace('_',' ', $row['status'])) ?>
+    </span>
+  </p>
+  <a
+    href="item.php?id=<?= $row['id'] ?>"
+    class="text-blue-600 mt-2 inline-block"
+  >
+    View Details →
+  </a>
+</article>
+
       <h2 class="text-xl font-semibold">
-        <?= htmlspecialchars($row['item_name']) ?>
+        <?= htmlspecialchars($row['item_name']) ?>F
       </h2>
       <p class="text-sm">Type: <?= ucfirst($row['type']) ?></p>
       <p class="text-sm">Location: <?= htmlspecialchars($row['location']) ?></p>
