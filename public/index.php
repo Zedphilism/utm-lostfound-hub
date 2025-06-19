@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../config/config.php';
 
+// Page title
 $pageTitle = 'Lost & Found - Home';
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../includes/nav.php';
@@ -35,7 +36,7 @@ $search = $_GET['search'] ?? '';
 $statusFilter = $_GET['status'] ?? '';
 
 // ✅ Build query
-$sql = "SELECT id, item_name, type, location, date_reported, status, vision_labels FROM reports WHERE item_name LIKE ?";
+$sql = "SELECT id, item_name, type, location, date_reported, status FROM reports WHERE item_name LIKE ?";
 $types = 's';
 $params = ['%' . $search . '%'];
 
@@ -98,13 +99,6 @@ $result = $stmt->get_result();
             <?= ucfirst(str_replace('_', ' ', $row['status'])) ?>
           </span>
         </p>
-
-        <?php if (!empty($row['vision_labels'])): ?>
-          <p class="text-sm text-gray-600 italic mt-1">
-            Auto-tags: <?= htmlspecialchars($row['vision_labels']) ?>
-          </p>
-        <?php endif; ?>
-
         <a
           href="item.php?id=<?= $row['id'] ?>"
           class="text-blue-600 mt-2 inline-block"
