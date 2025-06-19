@@ -11,7 +11,5 @@ CREATE TABLE IF NOT EXISTS `reports` (
   `reporter` VARCHAR(100),
   `date_reported` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` ENUM('pending','in_review','resolved') NOT NULL DEFAULT 'pending',
-  `submitted_by` ENUM('admin','public') NOT NULL DEFAULT 'public',
-  **`vision_labels` TEXT**
+  `submitted_by` ENUM('admin','public') NOT NULL DEFAULT 'public'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
