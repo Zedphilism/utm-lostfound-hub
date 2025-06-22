@@ -1,10 +1,23 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Load .env if not already loaded (for local development)
+if (!isset($_ENV['APP_ENV'])) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
+}
 
 function getVisionLabels($imagePath) {
-    global $GOOGLE_API_KEY;
+    $apiKey = getenv('GOOGLE_VISION_API_KEY');
+    if (!$apiKey) {
+        return 'No API key set';
+    }
 
     $imageData = file_get_contents($imagePath);
+    if (!$imageData) {
+        return 'Image file not readable';
+    }
+
     $encodedImage = base64_encode($imageData);
 
     $json = json_encode([
@@ -14,7 +27,7 @@ function getVisionLabels($imagePath) {
         ]],
     ]);
 
-    $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . $GOOGLE_API_KEY;
+    $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . $apiKey;
 
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -38,4 +51,3 @@ function getVisionLabels($imagePath) {
 
     return implode(', ', $labels);
 }
-?>
