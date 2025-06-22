@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
+require __DIR__ . '/../config/vision_helper.php'; // pastikan fail ini wujud
 use Cloudinary\Api\Upload\UploadApi;
 
 session_start();
@@ -15,25 +16,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $reporter    = trim($_POST['reporter'] ?? 'Anonymous');
     $image_path  = '';
+    $vision_labels = '';
 
     // Handle file upload
-    $image_path = '';
-if (!empty($_FILES['image']['tmp_name'])) {
-    try {
-        $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
-        $image_path = $result['secure_url'];
-    } catch (Exception $e) {
-        $error = 'Cloudinary upload failed: ' . $e->getMessage();
+    if (!empty($_FILES['image']['tmp_name'])) {
+        try {
+            // ✅ Upload image ke Cloudinary
+            $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
+            $image_path = $result['secure_url'];
+
+            // ✅ Download gambar sementara untuk analisis Vision API
+            $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
+            file_put_contents($tempImage, file_get_contents($image_path));
+
+            // ✅ Ambil label objek dari Google Vision
+            $vision_labels = getVisionLabels($tempImage);
+
+            // ✅ Padamkan fail sementara
+            unlink($tempImage);
+        } catch (Exception $e) {
+            $error = 'Image processing failed: ' . $e->getMessage();
+        }
     }
-}
 
-
+    // ✅ Simpan ke database jika tiada ralat
     if (!$error) {
         $stmt = $mysqli->prepare(
-            "INSERT INTO reports (item_name, type, location, description, reporter, image_path, submitted_by)
-             VALUES (?, ?, ?, ?, ?, ?, 'public')"
+            "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'public')"
         );
-        $stmt->bind_param('ssssss', $item_name, $type, $location, $description, $reporter, $image_path);
+        $stmt->bind_param('sssssss', $item_name, $type, $location, $description, $reporter, $image_path, $vision_labels);
         $stmt->execute();
         $success = true;
     }
