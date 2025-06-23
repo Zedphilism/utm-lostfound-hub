@@ -1,3 +1,4 @@
+<?php
 function getVisionLabels($imagePath) {
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
     if (!$apiKey) {
