@@ -1,17 +1,15 @@
-<?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
-// Railway: tidak perlu load .env kerana ENV dah dimasukkan melalui dashboard
-
 function getVisionLabels($imagePath) {
-    $apiKey = getenv('GOOGLE_API_KEY');
+    // Cuba dapatkan dari ENV
+    $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
+
+    // Fallback sementara jika gagal (optional)
     if (!$apiKey) {
-        return 'No API key set';
+        return 'Auto-tag unavailable (no API key)';
     }
 
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
-        return 'Image file not readable';
+        return 'Image not readable';
     }
 
     $encodedImage = base64_encode($imageData);
@@ -45,5 +43,5 @@ function getVisionLabels($imagePath) {
         }
     }
 
-    return implode(', ', $labels);
+    return !empty($labels) ? implode(', ', $labels) : 'No tags detected';
 }
