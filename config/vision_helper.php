@@ -5,17 +5,24 @@
  * Digunakan dalam projek Lost & Found Assistant
  */
 
+// Debug: sahkan fail dimuat
+echo "✅ vision_helper.php berjaya dimuat<br>";
+
 function getVisionLabels($imagePath) {
+    echo "➡️ Fungsi getVisionLabels() sedang dipanggil<br>"; // Debug: fungsi dipanggil
+
     $logFile = __DIR__ . '/vision_log.txt';
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
 
     if (!$apiKey) {
+        echo "❌ Tiada API key dikesan<br>";
         file_put_contents($logFile, date('Y-m-d H:i:s') . " ❌ No API key found\n", FILE_APPEND);
         return 'Auto-tag unavailable (no API key)';
     }
 
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
+        echo "❌ Gagal baca fail imej: $imagePath<br>";
         file_put_contents($logFile, date('Y-m-d H:i:s') . " ❌ Failed to read image: $imagePath\n", FILE_APPEND);
         return 'Image not readable: ' . $imagePath;
     }
@@ -41,6 +48,9 @@ function getVisionLabels($imagePath) {
     $response = curl_exec($ch);
     curl_close($ch);
 
+    // Debug log
+    echo "🔄 Permintaan dihantar ke API<br>";
+    echo "<pre>$response</pre>"; // Papar response sebenar API
     file_put_contents($logFile, date('Y-m-d H:i:s') . " 🔄 Request sent to: $url\n", FILE_APPEND);
     file_put_contents($logFile, "📥 Raw API Response:\n" . $response . "\n", FILE_APPEND);
 
