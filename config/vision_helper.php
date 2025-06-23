@@ -1,25 +1,34 @@
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Load .env if not already loaded (for local development)
+if (!isset($_ENV['APP_ENV'])) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->load();
+}
+
 function getVisionLabels($imagePath) {
-    $apiKey = getenv('GOOGLE_API_KEY');
+    $apiKey = getenv('GOOGLE_VISION_API_KEY');
     if (!$apiKey) {
-        error_log("❌ GOOGLE_API_KEY is empty!");
-        return '';
+        return 'No API key set';
     }
 
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
-        error_log("❌ Failed to read image at $imagePath");
-        return '';
+        return 'Image file not readable';
     }
 
     $encodedImage = base64_encode($imageData);
+
     $json = json_encode([
         'requests' => [[
             'image' => ['content' => $encodedImage],
             'features' => [['type' => 'LABEL_DETECTION', 'maxResults' => 5]],
-        ]]
+        ]],
     ]);
 
     $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . $apiKey;
+
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -27,18 +36,18 @@ function getVisionLabels($imagePath) {
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => $json,
     ]);
+
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    error_log("🔄 Vision API Response Code: $httpCode");
-    error_log("🧠 Raw Response: $response");
-
     $result = json_decode($response, true);
+    $labels = [];
+
     if (isset($result['responses'][0]['labelAnnotations'])) {
-        $labels = array_column($result['responses'][0]['labelAnnotations'], 'description');
-        return implode(', ', $labels);
+        foreach ($result['responses'][0]['labelAnnotations'] as $annotation) {
+            $labels[] = $annotation['description'];
+        }
     }
 
-    return '';
+    return implode(', ', $labels);
 }
