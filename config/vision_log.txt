@@ -1,0 +1,2 @@
+touch config/vision_log.txt
+chmod 666 config/vision_log.txt
