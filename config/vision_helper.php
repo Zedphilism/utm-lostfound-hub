@@ -1,8 +1,5 @@
 function getVisionLabels($imagePath) {
-    // Cuba dapatkan dari ENV
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
-
-    // Fallback sementara jika gagal (optional)
     if (!$apiKey) {
         return 'Auto-tag unavailable (no API key)';
     }
@@ -13,7 +10,6 @@ function getVisionLabels($imagePath) {
     }
 
     $encodedImage = base64_encode($imageData);
-
     $json = json_encode([
         'requests' => [[
             'image' => ['content' => $encodedImage],
