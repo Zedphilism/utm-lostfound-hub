@@ -1,61 +1,13 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/cloudinary.php';
-// require_once __DIR__ . '/../config/vision_helper.php'; // disable sementara untuk debug
+require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../config/cloudinary.php';
+require __DIR__ . '/../config/vision_helper.php'; // pastikan fail ini wujud
 use Cloudinary\Api\Upload\UploadApi;
 
 session_start();
 
 $success = false;
 $error = '';
-$vision_labels = '';
-
-/* ✅ MASUKKAN FUNGSI SECARA LANGSUNG UNTUK TEST */
-function getVisionLabels($imagePath) {
-    $apiKey = getenv('GOOGLE_API_KEY');
-    if (!$apiKey) {
-        error_log("❌ GOOGLE_API_KEY is empty!");
-        return '';
-    }
-
-    $imageData = file_get_contents($imagePath);
-    if (!$imageData) {
-        error_log("❌ Failed to read image at $imagePath");
-        return '';
-    }
-
-    $encodedImage = base64_encode($imageData);
-    $json = json_encode([
-        'requests' => [[
-            'image' => ['content' => $encodedImage],
-            'features' => [['type' => 'LABEL_DETECTION', 'maxResults' => 5]],
-        ]]
-    ]);
-
-    $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . $apiKey;
-    $ch = curl_init($url);
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_POSTFIELDS => $json,
-    ]);
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    error_log("🔄 Vision API Response Code: $httpCode");
-    error_log("🧠 Raw Response: $response");
-
-    $result = json_decode($response, true);
-    if (isset($result['responses'][0]['labelAnnotations'])) {
-        $labels = array_column($result['responses'][0]['labelAnnotations'], 'description');
-        return implode(', ', $labels);
-    }
-
-    return '';
-}
-/* Tamat fungsi */
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_name   = trim($_POST['item_name'] ?? '');
@@ -64,29 +16,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $reporter    = trim($_POST['reporter'] ?? 'Anonymous');
     $image_path  = '';
+    $vision_labels = '';
 
+    // Handle file upload
     if (!empty($_FILES['image']['tmp_name'])) {
         try {
+            // ✅ Upload image ke Cloudinary
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
+            // ✅ Download gambar sementara untuk analisis Vision API
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            if (function_exists('getVisionLabels')) {
-                $vision_labels = getVisionLabels($tempImage);
-                error_log("✅ Vision Labels: " . $vision_labels);
-            } else {
-                error_log("❌ Function getVisionLabels() not found");
-                $error = 'Internal error: Vision function not found.';
-            }
+            // ✅ Ambil label objek dari Google Vision
+            $vision_labels = getVisionLabels($tempImage);
 
+            // ✅ Padamkan fail sementara
             unlink($tempImage);
         } catch (Exception $e) {
             $error = 'Image processing failed: ' . $e->getMessage();
         }
     }
 
+    // ✅ Simpan ke database jika tiada ralat
     if (!$error) {
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
@@ -109,13 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100 text-gray-900">
 <div class="max-w-xl mx-auto mt-10 bg-white shadow p-6 rounded">
+
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
     <p class="text-green-600 mb-4">Your report has been submitted.</p>
-    <?php if (!empty($vision_labels)): ?>
-      <p class="text-sm text-gray-600"><strong>Detected Tags:</strong> <?= htmlspecialchars($vision_labels) ?></p>
-    <?php endif; ?>
   <?php elseif ($error): ?>
     <p class="text-red-600 mb-4"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
