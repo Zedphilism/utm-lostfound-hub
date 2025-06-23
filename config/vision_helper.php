@@ -6,21 +6,17 @@
  */
 
 function getVisionLabels($imagePath) {
-    // Ambil API Key dari environment
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
 
-    // Jika tiada API key
     if (!$apiKey) {
         return 'Auto-tag unavailable (no API key)';
     }
 
-    // Baca fail gambar
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
         return 'Image not readable: ' . $imagePath;
     }
 
-    // Sediakan payload JSON
     $encodedImage = base64_encode($imageData);
     $json = json_encode([
         'requests' => [[
@@ -29,7 +25,6 @@ function getVisionLabels($imagePath) {
         ]],
     ]);
 
-    // Hantar permintaan ke Google Vision
     $url = 'https://vision.googleapis.com/v1/images:annotate?key=' . $apiKey;
 
     $ch = curl_init($url);
@@ -43,17 +38,17 @@ function getVisionLabels($imagePath) {
     $response = curl_exec($ch);
     curl_close($ch);
 
-    // Decode response
     $result = json_decode($response, true);
-    $labels = [];
+    file_put_contents(__DIR__ . '/../vision_log.txt', "== GOOGLE VISION RAW ==\n" . print_r($result, true) . "\n\n", FILE_APPEND);
 
-    // Semak dan ekstrak label
+    $labels = [];
     if (isset($result['responses'][0]['labelAnnotations'])) {
         foreach ($result['responses'][0]['labelAnnotations'] as $annotation) {
             $labels[] = $annotation['description'];
         }
     }
 
-    // Hantar semula hasil
-    return !empty($labels) ? implode(', ', $labels) : 'No tags detected';
+    $finalResult = !empty($labels) ? implode(', ', $labels) : 'No tags detected';
+    file_put_contents(__DIR__ . '/../vision_log.txt', "🧠 Labels returned: " . $finalResult . "\n\n", FILE_APPEND);
+    return $finalResult;
 }
