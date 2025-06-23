@@ -1,22 +1,21 @@
 <?php
-// ✅ Elakkan output awal & debug header issue
-if (headers_sent($file, $line)) {
-    die("❌ Headers already sent in $file on line $line");
-}
-
-// ✅ Load config & vision helper
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
 
 $visionHelperPath = __DIR__ . '/../config/vision_helper.php';
 if (!file_exists($visionHelperPath)) {
-    die('❌ vision_helper.php not found at: ' . $visionHelperPath);
+    die('❌ vision_helper.php not found at expected path: ' . $visionHelperPath);
 }
 require $visionHelperPath;
 
+if (!function_exists('getVisionLabels')) {
+    file_put_contents(__DIR__ . '/../config/vision_log.txt', "❌ getVisionLabels() NOT LOADED\n", FILE_APPEND);
+} else {
+    file_put_contents(__DIR__ . '/../config/vision_log.txt', "✅ getVisionLabels() LOADED\n", FILE_APPEND);
+}
+
 use Cloudinary\Api\Upload\UploadApi;
 
-// ✅ Mula session selepas semua require
 session_start();
 
 $success = false;
@@ -31,27 +30,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image_path  = '';
     $vision_labels = '';
 
-    try {
-        // ✅ Handle upload
-        if (!empty($_FILES['image']['tmp_name'])) {
+    if (!empty($_FILES['image']['tmp_name'])) {
+        try {
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // ✅ Save sementara
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // ✅ Auto-tag
             if (function_exists('getVisionLabels')) {
+                file_put_contents(__DIR__ . '/../config/vision_log.txt', "🔄 Running getVisionLabels() for: $image_path\n", FILE_APPEND);
                 $vision_labels = getVisionLabels($tempImage);
             } else {
                 $vision_labels = '❌ getVisionLabels() not defined';
             }
 
             unlink($tempImage);
+        } catch (Exception $e) {
+            $error = 'Image processing failed: ' . $e->getMessage();
         }
+    }
 
-        // ✅ Insert DB
+    if (!$error) {
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
              VALUES (?, ?, ?, ?, ?, ?, ?, 'public')"
@@ -59,9 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('sssssss', $item_name, $type, $location, $description, $reporter, $image_path, $vision_labels);
         $stmt->execute();
         $success = true;
-
-    } catch (Exception $e) {
-        $error = '❌ Error: ' . $e->getMessage();
     }
 }
 ?>
@@ -80,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
-    <p class="text-green-600 mb-4">✅ Your report has been submitted successfully.</p>
+    <p class="text-green-600 mb-4">Your report has been submitted.</p>
   <?php elseif ($error): ?>
     <p class="text-red-600 mb-4"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
