@@ -1,13 +1,14 @@
 <?php
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
-require __DIR__ . '/../config/vision_helper.php'; // pastikan fail ini wujud
+require __DIR__ . '/../config/vision_helper.php';
 use Cloudinary\Api\Upload\UploadApi;
 
 session_start();
 
 $success = false;
 $error = '';
+$vision_labels = ''; // buat global supaya boleh papar selepas submit
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_name   = trim($_POST['item_name'] ?? '');
@@ -16,30 +17,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $reporter    = trim($_POST['reporter'] ?? 'Anonymous');
     $image_path  = '';
-    $vision_labels = '';
 
-    // Handle file upload
     if (!empty($_FILES['image']['tmp_name'])) {
         try {
-            // ✅ Upload image ke Cloudinary
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // ✅ Download gambar sementara untuk analisis Vision API
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // ✅ Ambil label objek dari Google Vision
+            // Ambil label dari Google Vision
             $vision_labels = getVisionLabels($tempImage);
+            error_log("🧠 Vision Labels Debug: " . $vision_labels); // debug log
 
-            // ✅ Padamkan fail sementara
             unlink($tempImage);
         } catch (Exception $e) {
             $error = 'Image processing failed: ' . $e->getMessage();
         }
     }
 
-    // ✅ Simpan ke database jika tiada ralat
     if (!$error) {
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
@@ -67,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <?php if ($success): ?>
     <p class="text-green-600 mb-4">Your report has been submitted.</p>
+    <?php if (!empty($vision_labels)): ?>
+      <p class="text-sm text-gray-600"><strong>Detected Tags:</strong> <?= htmlspecialchars($vision_labels) ?></p>
+    <?php endif; ?>
   <?php elseif ($error): ?>
     <p class="text-red-600 mb-4"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
