@@ -1,4 +1,3 @@
-<?php
 function getVisionLabels($imagePath) {
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
     if (!$apiKey) {
@@ -7,7 +6,7 @@ function getVisionLabels($imagePath) {
 
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
-        return 'Image not readable';
+        return 'Image not readable: ' . $imagePath;
     }
 
     $encodedImage = base64_encode($imageData);
@@ -32,12 +31,15 @@ function getVisionLabels($imagePath) {
     curl_close($ch);
 
     $result = json_decode($response, true);
-    $labels = [];
 
-    if (isset($result['responses'][0]['labelAnnotations'])) {
-        foreach ($result['responses'][0]['labelAnnotations'] as $annotation) {
-            $labels[] = $annotation['description'];
-        }
+    // Log response jika tiada hasil
+    if (!isset($result['responses'][0]['labelAnnotations'])) {
+        return 'Vision API responded: ' . json_encode($result);
+    }
+
+    $labels = [];
+    foreach ($result['responses'][0]['labelAnnotations'] as $annotation) {
+        $labels[] = $annotation['description'];
     }
 
     return !empty($labels) ? implode(', ', $labels) : 'No tags detected';
