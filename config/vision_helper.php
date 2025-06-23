@@ -6,14 +6,17 @@
  */
 
 function getVisionLabels($imagePath) {
+    $logFile = __DIR__ . '/vision_log.txt';
     $apiKey = getenv('GOOGLE_API_KEY') ?: getenv('GOOGLE_VISION_API_KEY');
 
     if (!$apiKey) {
+        file_put_contents($logFile, date('Y-m-d H:i:s') . " ❌ No API key found\n", FILE_APPEND);
         return 'Auto-tag unavailable (no API key)';
     }
 
     $imageData = file_get_contents($imagePath);
     if (!$imageData) {
+        file_put_contents($logFile, date('Y-m-d H:i:s') . " ❌ Failed to read image: $imagePath\n", FILE_APPEND);
         return 'Image not readable: ' . $imagePath;
     }
 
@@ -38,10 +41,12 @@ function getVisionLabels($imagePath) {
     $response = curl_exec($ch);
     curl_close($ch);
 
-    $result = json_decode($response, true);
-    file_put_contents(__DIR__ . '/../vision_log.txt', "== GOOGLE VISION RAW ==\n" . print_r($result, true) . "\n\n", FILE_APPEND);
+    file_put_contents($logFile, date('Y-m-d H:i:s') . " 🔄 Request sent to: $url\n", FILE_APPEND);
+    file_put_contents($logFile, "📥 Raw API Response:\n" . $response . "\n", FILE_APPEND);
 
+    $result = json_decode($response, true);
     $labels = [];
+
     if (isset($result['responses'][0]['labelAnnotations'])) {
         foreach ($result['responses'][0]['labelAnnotations'] as $annotation) {
             $labels[] = $annotation['description'];
@@ -49,6 +54,7 @@ function getVisionLabels($imagePath) {
     }
 
     $finalResult = !empty($labels) ? implode(', ', $labels) : 'No tags detected';
-    file_put_contents(__DIR__ . '/../vision_log.txt', "🧠 Labels returned: " . $finalResult . "\n\n", FILE_APPEND);
+    file_put_contents($logFile, "✅ Labels Detected: " . $finalResult . "\n\n", FILE_APPEND);
+
     return $finalResult;
 }
