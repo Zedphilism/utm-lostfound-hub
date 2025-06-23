@@ -39,9 +39,19 @@ if (!$item) {
   <p><strong>Status:</strong> <?= htmlspecialchars($item['status']) ?></p>
   <p><strong>Date Reported:</strong> <?= htmlspecialchars($item['date_reported']) ?></p>
 
-  <?php if (!empty($item['vision_labels'])): ?>
-    <p class="mt-2 italic text-gray-600"><strong>Auto-tags:</strong> <?= htmlspecialchars($item['vision_labels']) ?></p>
-  <?php endif; ?>
+  <!-- ✅ Auto-tags: tag-style UI -->
+  <div class="mt-4">
+    <p class="italic text-gray-600 mb-1"><strong>Auto-tags:</strong></p>
+    <?php if (!empty($item['vision_labels'])): ?>
+      <div class="flex flex-wrap gap-2">
+        <?php foreach (explode(',', $item['vision_labels']) as $label): ?>
+          <span class="bg-gray-200 px-2 py-1 rounded text-sm"><?= htmlspecialchars(trim($label)) ?></span>
+        <?php endforeach; ?>
+      </div>
+    <?php else: ?>
+      <p class="text-sm text-gray-400 italic">None</p>
+    <?php endif; ?>
+  </div>
 
   <?php if (!empty($item['image_path'])): ?>
     <?php
