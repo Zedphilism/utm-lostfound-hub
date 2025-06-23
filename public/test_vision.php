@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/vision_helper.php';
 
-$imagePath = __DIR__ . '/upload/bukutulis.jpg';
+$imagePath = __DIR__ . '/uploads/bukutulis.jpg';
 
 // Debug semak fail wujud
 if (!file_exists($imagePath)) {
