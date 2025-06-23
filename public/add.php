@@ -1,14 +1,14 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/cloudinary.php';
-require_once __DIR__ . '/../config/vision_helper.php';
+require __DIR__ . '/../config/config.php';
+require __DIR__ . '/../config/cloudinary.php';
+require __DIR__ . '/../config/vision_helper.php';
 use Cloudinary\Api\Upload\UploadApi;
 
 session_start();
 
 $success = false;
 $error = '';
-$vision_labels = '';
+$vision_labels = ''; // buat global supaya boleh papar selepas submit
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_name   = trim($_POST['item_name'] ?? '');
@@ -23,18 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // Simpan ke fail sementara
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // Jalankan Google Vision
-            if (function_exists('getVisionLabels')) {
-                $vision_labels = getVisionLabels($tempImage);
-                error_log("✅ Vision Labels: " . $vision_labels);
-            } else {
-                error_log("❌ Function getVisionLabels() not found");
-                $error = 'Internal error: Vision function not found.';
-            }
+            // Ambil label dari Google Vision
+            $vision_labels = getVisionLabels($tempImage);
+            error_log("🧠 Vision Labels Debug: " . $vision_labels); // debug log
 
             unlink($tempImage);
         } catch (Exception $e) {
@@ -64,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100 text-gray-900">
 <div class="max-w-xl mx-auto mt-10 bg-white shadow p-6 rounded">
+
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
