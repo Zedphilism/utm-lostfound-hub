@@ -1,7 +1,15 @@
 <?php
+// ✅ Elakkan sebarang output sebelum session_start()
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
-require __DIR__ . '/../config/vision_helper.php'; // pastikan fail ini wujud
+
+// ✅ Debug: pastikan vision_helper.php wujud
+$visionHelperPath = __DIR__ . '/../config/vision_helper.php';
+if (!file_exists($visionHelperPath)) {
+    die('❌ vision_helper.php not found at expected path: ' . $visionHelperPath);
+}
+require $visionHelperPath;
+
 use Cloudinary\Api\Upload\UploadApi;
 
 session_start();
@@ -18,28 +26,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image_path  = '';
     $vision_labels = '';
 
-    // Handle file upload
+    // ✅ Handle image upload
     if (!empty($_FILES['image']['tmp_name'])) {
         try {
             // ✅ Upload image ke Cloudinary
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // ✅ Download gambar sementara untuk analisis Vision API
+            // ✅ Simpan gambar sementara untuk diproses Vision API
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // ✅ Ambil label objek dari Google Vision
-            $vision_labels = getVisionLabels($tempImage);
+            // ✅ Gunakan Vision API
+            if (function_exists('getVisionLabels')) {
+                $vision_labels = getVisionLabels($tempImage);
+            } else {
+                $vision_labels = '❌ getVisionLabels() not defined';
+            }
 
-            // ✅ Padamkan fail sementara
-            unlink($tempImage);
+            unlink($tempImage); // Padam gambar sementara
         } catch (Exception $e) {
             $error = 'Image processing failed: ' . $e->getMessage();
         }
     }
 
-    // ✅ Simpan ke database jika tiada ralat
+    // ✅ Simpan ke database
     if (!$error) {
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
