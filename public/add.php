@@ -1,17 +1,22 @@
 <?php
-// ✅ Elakkan sebarang output sebelum session_start()
+// ✅ Elakkan output awal & debug header issue
+if (headers_sent($file, $line)) {
+    die("❌ Headers already sent in $file on line $line");
+}
+
+// ✅ Load config & vision helper
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
 
-// ✅ Debug: pastikan vision_helper.php wujud
 $visionHelperPath = __DIR__ . '/../config/vision_helper.php';
 if (!file_exists($visionHelperPath)) {
-    die('❌ vision_helper.php not found at expected path: ' . $visionHelperPath);
+    die('❌ vision_helper.php not found at: ' . $visionHelperPath);
 }
 require $visionHelperPath;
 
 use Cloudinary\Api\Upload\UploadApi;
 
+// ✅ Mula session selepas semua require
 session_start();
 
 $success = false;
@@ -26,32 +31,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $image_path  = '';
     $vision_labels = '';
 
-    // ✅ Handle image upload
-    if (!empty($_FILES['image']['tmp_name'])) {
-        try {
-            // ✅ Upload image ke Cloudinary
+    try {
+        // ✅ Handle upload
+        if (!empty($_FILES['image']['tmp_name'])) {
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // ✅ Simpan gambar sementara untuk diproses Vision API
+            // ✅ Save sementara
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // ✅ Gunakan Vision API
+            // ✅ Auto-tag
             if (function_exists('getVisionLabels')) {
                 $vision_labels = getVisionLabels($tempImage);
             } else {
                 $vision_labels = '❌ getVisionLabels() not defined';
             }
 
-            unlink($tempImage); // Padam gambar sementara
-        } catch (Exception $e) {
-            $error = 'Image processing failed: ' . $e->getMessage();
+            unlink($tempImage);
         }
-    }
 
-    // ✅ Simpan ke database
-    if (!$error) {
+        // ✅ Insert DB
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
              VALUES (?, ?, ?, ?, ?, ?, ?, 'public')"
@@ -59,6 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('sssssss', $item_name, $type, $location, $description, $reporter, $image_path, $vision_labels);
         $stmt->execute();
         $success = true;
+
+    } catch (Exception $e) {
+        $error = '❌ Error: ' . $e->getMessage();
     }
 }
 ?>
@@ -77,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
-    <p class="text-green-600 mb-4">Your report has been submitted.</p>
+    <p class="text-green-600 mb-4">✅ Your report has been submitted successfully.</p>
   <?php elseif ($error): ?>
     <p class="text-red-600 mb-4"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
