@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Railway: tidak perlu load .env kerana ENV dah dimasukkan melalui dashboard
+
 function getVisionLabels($imagePath) {
     $apiKey = getenv('GOOGLE_API_KEY');
     if (!$apiKey) {
