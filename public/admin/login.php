@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="max-w-md mx-auto mt-20 bg-white rounded shadow overflow-hidden">
     <!-- Blue header with UTM logo -->
     <div class="bg-blue-900 p-4 flex justify-center">
-      <img src="/assets/banner.webp" alt="UTM Logo" class="h-12 object-contain" />
+      <img src="/assets/utm-logo.png" alt="UTM Logo" class="h-12 object-contain" />
     </div>
 
     <!-- Login form content -->
