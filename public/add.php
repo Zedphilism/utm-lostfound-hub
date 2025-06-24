@@ -1,47 +1,46 @@
 <?php
-// ✅ Elakkan output awal & debug header issue
-if (headers_sent($file, $line)) {
-    die("❌ Headers already sent in $file on line $line");
-}
+// ✅ Elakkan warning header: mula buffer awal
+ob_start();
 
-// ✅ Load config & vision helper
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
 
 $visionHelperPath = __DIR__ . '/../config/vision_helper.php';
 if (!file_exists($visionHelperPath)) {
-    die('❌ vision_helper.php not found at: ' . $visionHelperPath);
+    file_put_contents(__DIR__ . '/../config/vision_log.txt', "❌ vision_helper.php not found\n", FILE_APPEND);
+    die(); // Jangan echo supaya header belum dihantar
 }
 require $visionHelperPath;
 
 use Cloudinary\Api\Upload\UploadApi;
 
-// ✅ Mula session selepas semua require
-session_start();
+// ✅ Mula session selepas semua require & sebelum ada echo/output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $success = false;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $item_name   = trim($_POST['item_name'] ?? '');
-    $type        = $_POST['type'] ?? 'lost';
-    $location    = trim($_POST['location'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $reporter    = trim($_POST['reporter'] ?? 'Anonymous');
-    $image_path  = '';
+    $item_name     = trim($_POST['item_name'] ?? '');
+    $type          = $_POST['type'] ?? 'lost';
+    $location      = trim($_POST['location'] ?? '');
+    $description   = trim($_POST['description'] ?? '');
+    $reporter      = trim($_POST['reporter'] ?? 'Anonymous');
+    $image_path    = '';
     $vision_labels = '';
 
     try {
-        // ✅ Handle upload
         if (!empty($_FILES['image']['tmp_name'])) {
             $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
             $image_path = $result['secure_url'];
 
-            // ✅ Save sementara
+            // Sementara fail
             $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
             file_put_contents($tempImage, file_get_contents($image_path));
 
-            // ✅ Auto-tag
+            // Vision API
             if (function_exists('getVisionLabels')) {
                 $vision_labels = getVisionLabels($tempImage);
             } else {
@@ -51,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unlink($tempImage);
         }
 
-        // ✅ Insert DB
+        // Simpan ke DB
         $stmt = $mysqli->prepare(
             "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
              VALUES (?, ?, ?, ?, ?, ?, ?, 'public')"
@@ -65,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -76,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100 text-gray-900">
 <div class="max-w-xl mx-auto mt-10 bg-white shadow p-6 rounded">
-
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
