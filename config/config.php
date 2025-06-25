@@ -16,6 +16,8 @@ $dbName = $_ENV['DB_NAME']   ?? getenv('DB_NAME');
 $dbUser = $_ENV['DB_USER']   ?? getenv('DB_USER');
 $dbPass = $_ENV['DB_PASS']   ?? getenv('DB_PASS');
 
+$GOOGLE_API_KEY = $_ENV['GOOGLE_API_KEY'] ?? '';
+
 // === DEBUGGING (uncomment while you’re fixing!) ===
 /*
 echo '<pre>';

@@ -1,45 +1,69 @@
 <?php
+// ✅ Elakkan warning header: mula buffer awal
+ob_start();
+
 require __DIR__ . '/../config/config.php';
 require __DIR__ . '/../config/cloudinary.php';
+
+$visionHelperPath = __DIR__ . '/../config/vision_helper.php';
+if (!file_exists($visionHelperPath)) {
+    file_put_contents(__DIR__ . '/../config/vision_log.txt', "❌ vision_helper.php not found\n", FILE_APPEND);
+    die(); // Jangan echo supaya header belum dihantar
+}
+require $visionHelperPath;
+
 use Cloudinary\Api\Upload\UploadApi;
 
-session_start();
+// ✅ Mula session selepas semua require & sebelum ada echo/output
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $success = false;
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $item_name   = trim($_POST['item_name'] ?? '');
-    $type        = $_POST['type'] ?? 'lost';
-    $location    = trim($_POST['location'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $reporter    = trim($_POST['reporter'] ?? 'Anonymous');
-    $image_path  = '';
+    $item_name     = trim($_POST['item_name'] ?? '');
+    $type          = $_POST['type'] ?? 'lost';
+    $location      = trim($_POST['location'] ?? '');
+    $description   = trim($_POST['description'] ?? '');
+    $reporter      = trim($_POST['reporter'] ?? 'Anonymous');
+    $image_path    = '';
+    $vision_labels = '';
 
-    // Handle file upload
-    $image_path = '';
-if (!empty($_FILES['image']['tmp_name'])) {
     try {
-        $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
-        $image_path = $result['secure_url'];
-    } catch (Exception $e) {
-        $error = 'Cloudinary upload failed: ' . $e->getMessage();
-    }
-}
-  
+        if (!empty($_FILES['image']['tmp_name'])) {
+            $result = (new UploadApi())->upload($_FILES['image']['tmp_name']);
+            $image_path = $result['secure_url'];
 
-    if (!$error) {
+            // Sementara fail
+            $tempImage = tempnam(sys_get_temp_dir(), 'vision_');
+            file_put_contents($tempImage, file_get_contents($image_path));
+
+            // Vision API
+            if (function_exists('getVisionLabels')) {
+                $vision_labels = getVisionLabels($tempImage);
+            } else {
+                $vision_labels = '❌ getVisionLabels() not defined';
+            }
+
+            unlink($tempImage);
+        }
+
+        // Simpan ke DB
         $stmt = $mysqli->prepare(
-            "INSERT INTO reports (item_name, type, location, description, reporter, image_path, submitted_by)
-             VALUES (?, ?, ?, ?, ?, ?, 'public')"
+            "INSERT INTO reports (item_name, type, location, description, reporter, image_path, vision_labels, submitted_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'public')"
         );
-        $stmt->bind_param('ssssss', $item_name, $type, $location, $description, $reporter, $image_path);
+        $stmt->bind_param('sssssss', $item_name, $type, $location, $description, $reporter, $image_path, $vision_labels);
         $stmt->execute();
         $success = true;
+
+    } catch (Exception $e) {
+        $error = '❌ Error: ' . $e->getMessage();
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,11 +74,10 @@ if (!empty($_FILES['image']['tmp_name'])) {
 </head>
 <body class="bg-gray-100 text-gray-900">
 <div class="max-w-xl mx-auto mt-10 bg-white shadow p-6 rounded">
-
   <h1 class="text-xl font-semibold mb-4">Report a Lost/Found Item</h1>
 
   <?php if ($success): ?>
-    <p class="text-green-600 mb-4">Your report has been submitted.</p>
+    <p class="text-green-600 mb-4">✅ Your report has been submitted successfully.</p>
   <?php elseif ($error): ?>
     <p class="text-red-600 mb-4"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
