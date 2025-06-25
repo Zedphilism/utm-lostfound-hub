@@ -45,30 +45,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Admin Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-gray-200 text-gray-900">
 
   <!-- Shared top nav -->
   <?php include __DIR__ . '/../../includes/nav.php'; ?>
 
-  <!-- Main login box -->
-  <div class="max-w-md mx-auto mt-20 bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">Admin Login</h1>
-    <?php if ($error): ?>
-      <div class="mb-4 text-red-600"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-    <form method="post">
-      <div class="mb-4">
-        <label class="block mb-1">Username</label>
-        <input type="text" name="username" class="w-full border p-2 rounded" required />
-      </div>
-      <div class="mb-4">
-        <label class="block mb-1">Password</label>
-        <input type="password" name="password" class="w-full border p-2 rounded" required />
-      </div>
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">
-        Login
-      </button>
-    </form>
+  <!-- Main login box with UTM logo header -->
+  <div class="max-w-md mx-auto mt-20 bg-white rounded shadow overflow-hidden">
+    <!-- Blue header with UTM logo -->
+    <div class="bg-blue-900 p-4 flex justify-center">
+      <img src="/assets/images/utm-logo.png" alt="UTM Logo" class="h-12 object-contain" />
+    </div>
+
+    <!-- Login form content -->
+    <div class="p-6">
+      <h1 class="text-2xl font-bold mb-4">Admin Login</h1>
+      <?php if ($error): ?>
+        <div class="mb-4 text-red-600"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+      <form method="post">
+        <div class="mb-4">
+          <label class="block mb-1">Username</label>
+          <input type="text" name="username" class="w-full border p-2 rounded" required />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">Password</label>
+          <input type="password" name="password" class="w-full border p-2 rounded" required />
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full">
+          Login
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Shared footer -->
