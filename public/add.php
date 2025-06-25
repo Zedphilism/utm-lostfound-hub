@@ -26,7 +26,7 @@ if (!empty($_FILES['image']['tmp_name'])) {
         $error = 'Cloudinary upload failed: ' . $e->getMessage();
     }
 }
-
+  
 
     if (!$error) {
         $stmt = $mysqli->prepare(
